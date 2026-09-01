@@ -214,9 +214,11 @@ def _build_stacked_chart(data, value_mode, title_text, subtitle_text, completed_
             fontweight="bold",
         )
 
-    fig.text(0.105, 0.96, title_text, ha="left", va="top", fontsize=18, fontweight="bold", color=THEME["orange"])
-    fig.text(0.105, 0.92, subtitle_text, ha="left", va="top", fontsize=12, fontweight="bold", color=THEME["navy"])
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, 1.08), ncol=2, frameon=False, fontsize=9, handlelength=1.8)
+    current_date_text = datetime.now().strftime("%d %b, %y")
+    fig.text(0.105, 0.96, title_text, ha="left", va="top", fontsize=20, fontweight="bold", color=THEME["orange"])
+    fig.text(0.105, 0.92, subtitle_text, ha="left", va="top", fontsize=14, fontweight="bold", color=THEME["navy"])
+    fig.text(0.92, 0.96, current_date_text, ha="right", va="top", fontsize=12, fontweight="bold", color=THEME["navy"])
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, 1.08), ncol=2, frameon=False, fontsize=12, handlelength=1.8)
 
     for patch in ax.patches:
         patch.set_linewidth(1.2)
@@ -226,7 +228,7 @@ def _build_stacked_chart(data, value_mode, title_text, subtitle_text, completed_
         spine.set_visible(False)
 
     ax.margins(y=0.02)
-    fig.subplots_adjust(left=0.30, right=0.98, top=0.82, bottom=0.08)
+    fig.subplots_adjust(left=0.60, right=0.98, top=0.82, bottom=0.16)
 
     return fig, output_name
 
@@ -358,7 +360,7 @@ if st.session_state.status == "done" and st.session_state.output_bytes:
                 st.download_button(
                     "Download JPG",
                     data=_fig_to_jpg(fig),
-                    file_name=f"SDVC_GRAPHNAME_{datetime.now().strftime('%d_%b_%y_%H_%M_%S')}.jpg",
+                    file_name=f"SDVC_COURSE_{datetime.now().strftime('%d_%b_%y_%H_%M_%S')}.jpg",
                     mime="image/jpeg",
                     use_container_width=True,
                     key="download_jpg_chapters",
@@ -380,7 +382,7 @@ if st.session_state.status == "done" and st.session_state.output_bytes:
                 st.download_button(
                     "Download JPG",
                     data=_fig_to_jpg(fig),
-                    file_name=f"SDVC_GRAPHNAME_{datetime.now().strftime('%d_%b_%y_%H_%M_%S')}.jpg",
+                    file_name=f"SDVC_VIDEO_{datetime.now().strftime('%d_%b_%y_%H_%M_%S')}.jpg",
                     mime="image/jpeg",
                     use_container_width=True,
                     key="download_jpg_videos",
