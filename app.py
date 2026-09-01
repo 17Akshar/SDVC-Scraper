@@ -270,7 +270,13 @@ with st.sidebar:
                 background-color: #111827;
             }
             .stTabs [role="tablist"] button {
-                color: #e2e8f0;
+                color: #cbd5e1;
+                border-bottom: 1px solid rgba(148, 163, 184, 0.45);
+            }
+            .stTabs [role="tablist"] button[aria-selected="true"] {
+                color: #f8fafc !important;
+                border-bottom: 2px solid #f59e0b;
+                background: rgba(15, 23, 42, 0.85);
             }
             [data-testid="stVerticalBlockBorderWrapper"] {
                 color: #e2e8f0;
