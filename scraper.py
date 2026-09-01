@@ -11,6 +11,8 @@ duration of one run.
 """
 
 import math
+import os
+import shutil
 import time
 from dataclasses import dataclass
 
@@ -79,12 +81,42 @@ def _wait_for(driver, locator, timeout=WAIT_TIMEOUT, clickable=False):
     return WebDriverWait(driver, timeout).until(condition(locator))
 
 
+def _get_chrome_binary():
+    candidates = [
+        os.environ.get("CHROME_BIN"),
+        "google-chrome",
+        "google-chrome-stable",
+        "chromium",
+        "chromium-browser",
+        "chrome",
+    ]
+    for candidate in candidates:
+        if not candidate:
+            continue
+        resolved = shutil.which(candidate)
+        if resolved:
+            return resolved
+        if os.path.exists(candidate):
+            return candidate
+    return None
+
+
 def _get_driver(headless: bool):
     options = Options()
+    chrome_binary = _get_chrome_binary()
+    if chrome_binary:
+        options.binary_location = chrome_binary
+
     if headless:
         options.add_argument("--headless=new")
     options.add_argument("--start-maximized")
     options.add_argument("--disable-notifications")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--disable-extensions")
+
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     driver.implicitly_wait(2)
