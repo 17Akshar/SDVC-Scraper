@@ -174,7 +174,7 @@ def _build_stacked_chart(data, value_mode, title_text, subtitle_text, completed_
     for spine in ax.spines.values():
         spine.set_visible(False)
 
-    ax.tick_params(axis="y", labelsize=9, colors=THEME["navy"])
+    ax.tick_params(axis="y", labelsize=12, colors=THEME["navy"])
     ax.tick_params(axis="x", bottom=False, labelbottom=False)
     for label in ax.get_yticklabels():
         label.set_color(THEME["navy"])
@@ -361,6 +361,7 @@ if st.session_state.status == "done" and st.session_state.output_bytes:
                     file_name=f"SDVC_GRAPHNAME_{datetime.now().strftime('%d_%b_%y_%H_%M_%S')}.jpg",
                     mime="image/jpeg",
                     use_container_width=True,
+                    key="download_jpg_chapters",
                 )
 
         with chart_tabs[1]:
@@ -382,6 +383,7 @@ if st.session_state.status == "done" and st.session_state.output_bytes:
                     file_name=f"SDVC_GRAPHNAME_{datetime.now().strftime('%d_%b_%y_%H_%M_%S')}.jpg",
                     mime="image/jpeg",
                     use_container_width=True,
+                    key="download_jpg_videos",
                 )
 
 elif st.session_state.status == "error" and st.session_state.error_message:
