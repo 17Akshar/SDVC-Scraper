@@ -23,7 +23,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from webdriver_manager.chrome import ChromeDriverManager
 
 import openpyxl
 from openpyxl.styles import Font
@@ -84,6 +83,13 @@ def _wait_for(driver, locator, timeout=WAIT_TIMEOUT, clickable=False):
 def _get_chrome_binary():
     candidates = [
         os.environ.get("CHROME_BIN"),
+        os.environ.get("GOOGLE_CHROME_BIN"),
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+        "/usr/bin/google-chrome",
+        "/usr/bin/google-chrome-stable",
+        "/usr/local/bin/chromium",
+        "/usr/local/bin/google-chrome",
         "google-chrome",
         "google-chrome-stable",
         "chromium",
@@ -101,11 +107,39 @@ def _get_chrome_binary():
     return None
 
 
+def _get_chromedriver_path():
+    candidates = [
+        os.environ.get("CHROMEDRIVER_PATH"),
+        "/usr/bin/chromedriver",
+        "/usr/local/bin/chromedriver",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "chromedriver"),
+        shutil.which("chromedriver"),
+    ]
+    for candidate in candidates:
+        if not candidate:
+            continue
+        if os.path.exists(candidate) and os.access(candidate, os.X_OK):
+            return candidate
+    return None
+
+
 def _get_driver(headless: bool):
-    options = Options()
     chrome_binary = _get_chrome_binary()
-    if chrome_binary:
-        options.binary_location = chrome_binary
+    driver_path = _get_chromedriver_path()
+
+    if not chrome_binary:
+        raise RuntimeError(
+            "Chrome/Chromium browser is not installed in this deployment environment. "
+            "Install Chromium via Streamlit packages.txt or use a custom Docker image with Chrome."
+        )
+    if not driver_path:
+        raise RuntimeError(
+            "Chromedriver is not available in this deployment environment. "
+            "Add chromium-driver in packages.txt or upload a Linux x86_64 chromedriver file to the repo."
+        )
+
+    options = Options()
+    options.binary_location = chrome_binary
 
     if headless:
         options.add_argument("--headless=new")
@@ -117,7 +151,7 @@ def _get_driver(headless: bool):
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-extensions")
 
-    service = Service(ChromeDriverManager().install())
+    service = Service(driver_path)
     driver = webdriver.Chrome(service=service, options=options)
     driver.implicitly_wait(2)
     return driver
@@ -289,7 +323,14 @@ def run_scraper(username: str, password: str, output_path: str, log, headless: b
     if not username or not password:
         raise ScraperError("Username and password are required.")
 
-    driver = _get_driver(headless=headless)
+    try:
+        driver = _get_driver(headless=headless)
+    except Exception as e:
+        raise ScraperError(
+            "Browser startup failed. Chrome/Chromium is not installed in this deployment environment. "
+            "Use a custom Docker image with Chrome or a VM/server that supports Selenium browser automation."
+        ) from e
+
     try:
         _login(driver, username, password, log)
 
