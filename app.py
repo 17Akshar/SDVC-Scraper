@@ -22,10 +22,17 @@ import streamlit as st
 from openpyxl import load_workbook
 
 matplotlib.use("Agg")
+plt.rcParams["font.family"] = ["Playfair Display", "DejaVu Serif", "Georgia", "serif"]
+plt.rcParams["font.serif"] = ["Playfair Display", "DejaVu Serif", "Georgia", "Times New Roman", "serif"]
 
 from scraper import run_scraper, ScraperError
 
 st.set_page_config(page_title="Balak Progress Sync", page_icon="📘", layout="wide")
+
+THEME_MODE = "light"
+
+if "ui_theme" not in st.session_state:
+    st.session_state.ui_theme = "light"
 
 # --- session state -----------------------------------------------------
 for key, default in {
@@ -231,6 +238,55 @@ def _build_stacked_chart(data, value_mode, title_text, subtitle_text, completed_
     fig.subplots_adjust(left=0.60, right=0.98, top=0.82, bottom=0.16)
 
     return fig, output_name
+
+# --- ui theme toggle -----------------------------------------------------
+with st.sidebar:
+    st.caption("UI Theme")
+    theme_choice = st.radio(
+        "Theme",
+        ["Light", "Dark"],
+        index=0 if st.session_state.ui_theme == "light" else 1,
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+    st.session_state.ui_theme = theme_choice.lower()
+
+    if st.session_state.ui_theme == "dark":
+        st.markdown(
+            """
+            <style>
+            .stApp {
+                background-color: #0f172a;
+                color: #e2e8f0;
+            }
+            div[data-testid="stSidebar"] {
+                background-color: #111827;
+            }
+            .stTabs [role="tablist"] button {
+                color: #e2e8f0;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            """
+            <style>
+            .stApp {
+                background-color: #f8fafc;
+                color: #0f172a;
+            }
+            div[data-testid="stSidebar"] {
+                background-color: #f1f5f9;
+            }
+            .stTabs [role="tablist"] button {
+                color: #0f172a;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
 
 # --- main layout ----------------------------------------------------------
 left_col, right_col = st.columns([1.0, 1.5], gap="large")
