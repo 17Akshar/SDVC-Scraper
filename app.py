@@ -15,6 +15,7 @@ import io
 import math
 import re
 from datetime import datetime
+from html import escape
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -54,7 +55,13 @@ THEME = {
     "text": "#1F2937",
     "bg": "#F8FAFC",
     "graph_bg": "#F7EFE1",
+    "dark_text": "#E2E8F0",
+    "light_text": "#0F172A",
 }
+
+
+def _ui_text_color():
+    return THEME["dark_text"] if st.session_state.ui_theme == "dark" else THEME["light_text"]
 
 
 def _safe_float(value):
@@ -148,7 +155,7 @@ def _build_stacked_chart(data, value_mode, title_text, subtitle_text, completed_
     fig, ax = plt.subplots(figsize=(12, max(7, len(names) * 0.32)))
     fig.patch.set_facecolor(THEME["graph_bg"])
     ax.set_facecolor(THEME["graph_bg"])
-    fig.subplots_adjust(left=0.28, right=0.98, top=0.82, bottom=0.08)
+    fig.subplots_adjust(left=0.12, right=0.98, top=0.82, bottom=0.12)
     fig.patch.set_alpha(1)
     ax.patch.set_alpha(1)
 
@@ -235,7 +242,7 @@ def _build_stacked_chart(data, value_mode, title_text, subtitle_text, completed_
         spine.set_visible(False)
 
     ax.margins(y=0.02)
-    fig.subplots_adjust(left=0.60, right=0.98, top=0.82, bottom=0.16)
+    fig.subplots_adjust(left=0.12, right=0.98, top=0.82, bottom=0.12)
 
     return fig, output_name
 
@@ -265,6 +272,27 @@ with st.sidebar:
             .stTabs [role="tablist"] button {
                 color: #e2e8f0;
             }
+            [data-testid="stVerticalBlockBorderWrapper"] {
+                color: #e2e8f0;
+            }
+            .stFormSubmitButton > button,
+            .stDownloadButton > button,
+            .stButton > button {
+                background: linear-gradient(180deg, #f59e0b, #d97706);
+                color: #ffffff !important;
+                border: 1px solid #f59e0b;
+                border-radius: 0.6rem;
+                font-weight: 600;
+                box-shadow: none;
+                margin: 0;
+                padding: 0.45rem 0.9rem;
+            }
+            .stFormSubmitButton > button:hover,
+            .stDownloadButton > button:hover,
+            .stButton > button:hover {
+                background: linear-gradient(180deg, #fbbf24, #f59e0b);
+                border-color: #fbbf24;
+            }
             </style>
             """,
             unsafe_allow_html=True,
@@ -282,6 +310,27 @@ with st.sidebar:
             }
             .stTabs [role="tablist"] button {
                 color: #0f172a;
+            }
+            [data-testid="stVerticalBlockBorderWrapper"] {
+                color: #0f172a;
+            }
+            .stFormSubmitButton > button,
+            .stDownloadButton > button,
+            .stButton > button {
+                background: linear-gradient(180deg, #f59e0b, #d97706);
+                color: #ffffff !important;
+                border: 1px solid #f59e0b;
+                border-radius: 0.6rem;
+                font-weight: 600;
+                box-shadow: none;
+                margin: 0;
+                padding: 0.45rem 0.9rem;
+            }
+            .stFormSubmitButton > button:hover,
+            .stDownloadButton > button:hover,
+            .stButton > button:hover {
+                background: linear-gradient(180deg, #fbbf24, #f59e0b);
+                border-color: #fbbf24;
             }
             </style>
             """,
@@ -350,17 +399,18 @@ if submitted:
             update_progress_from_log(message)
 
             log_placeholder.empty()
+            text_color = _ui_text_color()
             with log_placeholder.container():
                 for line in log_lines:
                     lower = line.lower()
                     if line.startswith("ERROR"):
-                        st.markdown(f":red[{line}]")
+                        st.markdown(f"<div style='color:#ff6b6b; margin:0; padding:0;'>{escape(line)}</div>", unsafe_allow_html=True)
                     elif lower.startswith("warning"):
-                        st.markdown(f":orange[{line}]")
+                        st.markdown(f"<div style='color:#fbbf24; margin:0; padding:0;'>{escape(line)}</div>", unsafe_allow_html=True)
                     elif lower.rstrip(".") == "done":
-                        st.markdown(f":green[**{line}**]")
+                        st.markdown(f"<div style='color:#34d399; font-weight:700; margin:0; padding:0;'>{escape(line)}</div>", unsafe_allow_html=True)
                     else:
-                        st.text(line)
+                        st.markdown(f"<div style='color:{text_color}; margin:0; padding:0;'>{escape(line)}</div>", unsafe_allow_html=True)
 
         now = datetime.now()
         timestamp_label = now.strftime("%d_%b_%y_%H_%M_%S")
