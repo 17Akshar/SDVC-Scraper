@@ -155,7 +155,7 @@ def _build_stacked_chart(data, value_mode, title_text, subtitle_text, completed_
     fig, ax = plt.subplots(figsize=(12, max(7, len(names) * 0.32)))
     fig.patch.set_facecolor(THEME["graph_bg"])
     ax.set_facecolor(THEME["graph_bg"])
-    fig.subplots_adjust(left=0.12, right=0.98, top=0.82, bottom=0.12)
+    fig.subplots_adjust(left=0.30, right=0.98, top=0.82, bottom=0.08)
     fig.patch.set_alpha(1)
     ax.patch.set_alpha(1)
 
@@ -242,7 +242,7 @@ def _build_stacked_chart(data, value_mode, title_text, subtitle_text, completed_
         spine.set_visible(False)
 
     ax.margins(y=0.02)
-    fig.subplots_adjust(left=0.12, right=0.98, top=0.82, bottom=0.12)
+    fig.subplots_adjust(left=0.30, right=0.98, top=0.82, bottom=0.08)
 
     return fig, output_name
 
